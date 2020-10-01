@@ -1,11 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { StyleSheet, Text, View, Button } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
+import { createDrawerNavigator } from "@react-navigation/drawer";
 
 import { AntDesign } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import { DrawerActions } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 
 const messages = [
   {
@@ -41,12 +44,30 @@ const Stack = createStackNavigator();
 
 const Tab = createBottomTabNavigator();
 
+const Drawer = createDrawerNavigator();
+
 const MessagesStack = () => {
   return (
     <Stack.Navigator initialRouteName="Messages">
-      <Stack.Screen name="Messages" component={Messages} />
+      <Stack.Screen
+        options={{
+          headerTitle: (props) => <MessagesTitle {...props} />,
+        }}
+        name="Messages"
+        component={MessagesDrawer}
+      />
       <Stack.Screen name="Conversation" component={Conversation} />
     </Stack.Navigator>
+  );
+};
+
+const MessagesDrawer = () => {
+  return (
+    <Drawer.Navigator>
+      <Drawer.Screen name="Messages" component={Messages}></Drawer.Screen>
+      <Drawer.Screen name="drawer1" component={Drawer1}></Drawer.Screen>
+      <Drawer.Screen name="drawer2" component={Drawer2}></Drawer.Screen>
+    </Drawer.Navigator>
   );
 };
 
@@ -57,11 +78,26 @@ const Messages = ({ navigation }) => {
         <TouchableOpacity
           onPress={() => navigation.navigate("Conversation", mess)}
           style={styles.messageContainer}
+          key={mess.author}
         >
           <Text style={styles.authorText}>{mess.author}</Text>
           <Text>{mess.content}</Text>
         </TouchableOpacity>
       ))}
+    </View>
+  );
+};
+
+const MessagesTitle = () => {
+  const navigation = useNavigation();
+  return (
+    <View style={styles.headerContainer}>
+      <TouchableOpacity
+        onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
+      >
+        <AntDesign name="menuunfold" size={24} color="black" />
+      </TouchableOpacity>
+      <Text>Message</Text>
     </View>
   );
 };
@@ -80,6 +116,8 @@ const Contacts = () => <Text>Contacts</Text>;
 const Groups = () => <Text>Groups</Text>;
 const Timeline = () => <Text>Timeline</Text>;
 const More = () => <Text>More</Text>;
+const Drawer1 = () => <Text>Drawer1</Text>;
+const Drawer2 = () => <Text>Drawer2</Text>;
 
 const routeIcons = {
   Messages: "message1",
@@ -132,5 +170,8 @@ const styles = StyleSheet.create({
     borderColor: "grey",
     marginTop: 10,
     padding: 5,
+  },
+  headerContainer: {
+    flexDirection: "row",
   },
 });
